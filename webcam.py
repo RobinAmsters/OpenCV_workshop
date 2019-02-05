@@ -45,7 +45,7 @@ def count_frames_manual(video_file):
 	# return the total number of frames in the video file
     return total
 
-def get_webcam_reference(video_file, cam_params_file, dictionary, marker_size, board, show_video=False, save_output=False, output_file_name='output.avi'):
+def get_webcam_reference(video_file, cam_params_file, dictionary, marker_size, board, show_video=False, save_output=False, output_file_name='output.avi', webcam_stream=False):
     """
         Function that returns the position and orientation of a marker from its
         initial position.
@@ -67,9 +67,16 @@ def get_webcam_reference(video_file, cam_params_file, dictionary, marker_size, b
     """
 
     # Open video file and get number of frames
-    print('Preprocessing: counting number of frames')
-    n_frames = count_frames_manual(video_file)
-    cap = cv2.VideoCapture(video_file)
+
+    if webcam_stream:
+        cap = cv2.VideoCapture(0)
+    else:
+        print('Preprocessing: counting number of frames')
+        n_frames = count_frames_manual(video_file)
+        cap = cv2.VideoCapture(video_file)
+
+    loop = True  # Stop condition for while loop
+    i = 0  # Current iteration. Loop needs to stop when all frames of videofile have been processed
 
     # Parameters from camera calibration
     cal = pickle.load(open(cam_params_file, "rb" ))
@@ -89,8 +96,7 @@ def get_webcam_reference(video_file, cam_params_file, dictionary, marker_size, b
 
     parameters =  aruco.DetectorParameters_create() # Obtain detection parameters
 
-    # Capture frame-by-frame
-    for i in range(n_frames):
+    while(loop):
 
         ret, frame = cap.read()
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) # Convert to grayscale
@@ -130,7 +136,11 @@ def get_webcam_reference(video_file, cam_params_file, dictionary, marker_size, b
 
         # Stop when q is pressed
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+            loop=False
+
+        i += 1
+        if i == n_frames:
+            loop = False
 
     # When everything done, release the capture
     cap.release()

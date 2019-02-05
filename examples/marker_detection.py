@@ -8,6 +8,11 @@ Created on Wed May  9 16:19:59 2018
 
 Example aruco marker detection postprocessing file
 
+Accepted command line arguments:
+    - video: process a prerecorded video file. If not specified, webcam feed will be used
+    - gui: select calibration parameter with a GUI. If not specified, de default file in the 'example_data' folder will
+    be used
+
 If the argument 'select_files' is specified, a GUI will be used to select the camera parameters and video file
 
 """
@@ -26,7 +31,7 @@ sys.path.append('..')
 from file_select_gui import get_file_path
 import webcam
 
-def track_marker(select_files=False):
+def track_marker(select_files=False, webcam_stream=False):
     save_figs = False  # Save the resulting plots
 
     # Define marker parameters
@@ -49,9 +54,10 @@ def track_marker(select_files=False):
 
     all_tvec, all_rvec = webcam.get_webcam_reference(video_file, cam_params_file, dictionary,
                                               marker_size, board, show_video=True,
-                                              save_output=False, output_file_name='example.avi')
-    (X, Y, Z) = project_in_main_plane(all_tvec)
+                                              save_output=False, output_file_name='example.avi', webcam_stream=webcam_stream)
 
+    # Project to single plane
+    # (X, Y, Z) = project_in_main_plane(all_tvec)
     # fig = plt.figure(3)
     # fig.clf()
     # ax = fig.gca(projection='3d')
@@ -138,14 +144,16 @@ def visualize(posVec, plotInterval=1, saveFig=False, fontSize=20):
     if saveFig:
         plt.savefig((fig_name + '.png'), dpi=300, bbox_inches='tight')
         plt.savefig((fig_name + '.eps'), format='eps', dpi=300.0, bbox_inches='tight')
-    # plt.draw()
-
 
 if __name__ == '__main__':
 
-    if 'select_files' in sys.argv:
+    if 'gui' in sys.argv:
         select_files = True
     else:
         select_files = False
-    track_marker(select_files=select_files)
+    if 'video' in sys.argv:
+        webcam_stream = False
+    else:
+        webcam_stream = True
+    track_marker(select_files=select_files, webcam_stream=webcam_stream)
     plt.show()
