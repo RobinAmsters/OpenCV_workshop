@@ -1,6 +1,7 @@
 import cv2.aruco
 import glob
 import pickle
+import sys
 import file_select_gui as gui
 
 def count_frames_manual(videoFileName):
@@ -81,9 +82,10 @@ if __name__ == "__main__":
     try:
         print("Calculating camera parameters")
         cal = cv2.aruco.calibrateCameraCharuco(allCorners,allIds,board,imsize,None,None)
-        # pickle.dump(cal, open("tst_images.p", "wb" ))
-        print cal
-        print('Calibration parameters NOT saved')
+        print("Calibration parameters: ", cal)
+        if 'save' in sys.argv:
+            pickle.dump(cal, open("tst_images.p", "wb" ))
+            print('Calibration parameters saved')
     except:
         print('Calibration failed')
     
