@@ -1,6 +1,7 @@
 import cv2.aruco
 import glob
 import pickle
+import file_select_gui as gui
 
 def count_frames_manual(videoFileName):
 	# initialize the total number of frames read
@@ -39,7 +40,13 @@ if __name__ == "__main__":
     # General parameters
     dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
     board = get_charuco_board(dictionary, False)
-    images = glob.glob('calibration_data/charuco_images/*.jpg')
+
+    image_folder = gui.get_directory_path('Select folder containing calibration images ')
+    images = glob.glob(image_folder + '/*.jpg')
+    if images is None or not images:
+        images = glob.glob(image_folder + '/*.png')
+
+    # images = glob.glob('calibration_data/charuco_images/*.jpg')
     
     allCorners = []
     allIds = []
@@ -61,7 +68,7 @@ if __name__ == "__main__":
     
         cv2.imshow('frame',gray)
         
-        if cv2.waitKey(200) & 0xFF == ord('q'):
+        if cv2.waitKey(500) & 0xFF == ord('q'):
             break
         
         decimator+=1
@@ -72,10 +79,11 @@ if __name__ == "__main__":
     
     #Calibration fails for lots of reasons. Release the video if we do
     try:
-        print("Calculating camera parameters, THIS MAY TAKE A VERY LONG TIME FOR VIDEO")
+        print("Calculating camera parameters")
         cal = cv2.aruco.calibrateCameraCharuco(allCorners,allIds,board,imsize,None,None)
-        pickle.dump(cal, open("tst_images.p", "wb" ))
-        print('Calibration parameters saved')
+        # pickle.dump(cal, open("tst_images.p", "wb" ))
+        print cal
+        print('Calibration parameters NOT saved')
     except:
         print('Calibration failed')
     
