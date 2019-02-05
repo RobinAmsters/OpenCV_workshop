@@ -19,13 +19,17 @@ import cv2.aruco as aruco
 import numpy as np
 import pickle
 
+import matplotlib.pyplot as plt
 import file_select_gui as gui
+from mpl_toolkits.mplot3d import Axes3D
+
 
 cap = cv2.VideoCapture(0)
 
 font = cv2.FONT_HERSHEY_SIMPLEX #font for displaying text
-markerSize = 0.07  # Size of markers in physical world [m]
-cam_params_file = gui.get_file_path("Select camera parameters file").name
+markerSize = 0.033  # Size of markers in physical world [m]
+# cam_params_file = gui.get_file_path("Select camera parameters file").name
+cam_params_file = '../example_data/cam_params.pckl'
 cal = pickle.load(open( cam_params_file, "rb" ))
 
 cMat = cal[0]
@@ -50,8 +54,8 @@ while(True):
 
     # lists of ids and the corners belonging to each id
     corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, dictionary, parameters=parameters)
-   
-    if ids != None and len(ids) >= 4:  
+
+    if (ids is not None and len(ids) >= 4):
         corners, ids, rejectedCorners, recoveredIDs = aruco.refineDetectedMarkers(gray, board, corners, ids, rejectedCorners=rejectedImgPoints, cameraMatrix=cMat, distCoeffs=dist, parameters=parameters) # refine corners, does not seeem to have any effect ?
 
         retval, charucoCorners, charucoIds = aruco.interpolateCornersCharuco(corners, ids, gray, board, cameraMatrix=cMat, distCoeffs=dist)
@@ -60,38 +64,20 @@ while(True):
         rvec = np.array([rvec.item(0), rvec.item(1), rvec.item(2)])
         tvec = np.array([tvec.item(0), tvec.item(1), tvec.item(2)])
 
-        
-        if not pose_0_set:
-            pose_0 = (rvec, tvec)
-            pose_0_set = True
-            
-        else:
-            rvec_0 = pose_0[0]
-            tvec_0 = pose_0[1]
-            
-            tvec_n = tvec - tvec_0
-            rvec_n = rvec - rvec_0
-            r = np.sqrt(np.power(tvec_n[0],2) + np.power(tvec_n[1],2) + np.power(tvec_n[2],2))
-            
-            
-            print('Translation from initial position: ', tvec_n)
-            print('Rotation from initial position: ', rvec_n)
-            print('Total distance from initial position: ', r)
-         
         # show information on image
         frameWithMarkers = aruco.drawDetectedMarkers(frame, corners) # Draw marker borders
         cv2.putText(frameWithMarkers, "ID: " + str(ids), (0,64), font, 1, (0,255,0),2,cv2.LINE_AA)  # Show detected IDs
-        aruco.drawAxis(frameWithMarkers, cMat, dist, rvec, tvec, 0.1) #Draw Axis  
-        
-        # Display the resulting frame
-        cv2.imshow('frame',frameWithMarkers)
-        
+        aruco.drawAxis(frameWithMarkers, cMat, dist, rvec, tvec, 0.1) #Draw Axis
+
     else:  
         # Display: no IDs
-        cv2.putText(frame, "No IDs", (0,64), font, 1, (0,255,0),2,cv2.LINE_AA)  
+        cv2.putText(frame, "No IDs", (0,64), font, 1, (0,255,0),2,cv2.LINE_AA)
+        frameWithMarkers = frame
     
-    # Stop when q is pressed
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+
+    # Display the resulting frame
+    cv2.imshow('frame',frameWithMarkers)
+    if cv2.waitKey(1) & 0xFF == ord('q'): # Stop when q is pressed
         break
     
  
