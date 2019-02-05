@@ -139,8 +139,9 @@ def get_webcam_reference(video_file, cam_params_file, dictionary, marker_size, b
             loop=False
 
         i += 1
-        if i == n_frames:
-            loop = False
+        if not webcam_stream:
+            if i == n_frames:
+                loop = False
 
     # When everything done, release the capture
     cap.release()

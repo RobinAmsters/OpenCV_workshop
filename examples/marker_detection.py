@@ -57,7 +57,7 @@ def track_marker(select_files=False, webcam_stream=False):
                                               save_output=False, output_file_name='example.avi', webcam_stream=webcam_stream)
 
     # Project to single plane
-    # (X, Y, Z) = project_in_main_plane(all_tvec)
+    (X, Y, Z) = project_in_main_plane(all_tvec)
     # fig = plt.figure(3)
     # fig.clf()
     # ax = fig.gca(projection='3d')
@@ -65,8 +65,8 @@ def track_marker(select_files=False, webcam_stream=False):
     # ax.scatter(X, Y)
 
 
-    visualize(all_tvec, saveFig=save_figs)
-    write_to_csv(np.column_stack((X, Y, Z)), '/tmp/test_vid.csv', 0, 30)
+    visualize(X,Y,Z, saveFig=save_figs)
+    # write_to_csv(np.column_stack((X, Y, Z)), '/tmp/test_vid.csv', 0, 30)
 
 
 def project_in_main_plane(matrix):
@@ -95,7 +95,7 @@ def write_to_csv(posVec, fileName, startTime, framerate):
             writer.writerow([startTime + float(i)/framerate] + list(posVec[i]))
 
 
-def visualize(posVec, plotInterval=1, saveFig=False, fontSize=20):
+def visualize(X,Y,Z, plotInterval=1, saveFig=False, fontSize=20):
     #             PLOTTING
 
     fig_name = 'Marker position'
@@ -104,10 +104,10 @@ def visualize(posVec, plotInterval=1, saveFig=False, fontSize=20):
     fig1.canvas.set_window_title(fig_name)
     ax1 = fig1.gca(projection='3d')
     ax1.axis('equal')
-    ax1.scatter3D(posVec[:, 0], posVec[:, 1], posVec[:, 2])
-    ax1.set_xlim(min(posVec[:, 0]) - plotInterval, max(posVec[:, 0]) + plotInterval)
-    ax1.set_ylim(min(posVec[:, 1]) - plotInterval, max(posVec[:, 1]) + plotInterval)
-    ax1.set_zlim(min(posVec[:, 2]) - plotInterval, max(posVec[:, 2]) + plotInterval)
+    ax1.scatter3D(X, Y, Z)
+    ax1.set_xlim(min(X) - plotInterval, max(X) + plotInterval)
+    ax1.set_ylim(min(Y) - plotInterval, max(Y) + plotInterval)
+    ax1.set_zlim(min(Z) - plotInterval, max(Z) + plotInterval)
     ax1.set_title('Marker position', fontsize=fontSize, y=1.05)
     plt.tick_params(axis='both', which='major', labelsize=fontSize)
 
@@ -121,22 +121,22 @@ def visualize(posVec, plotInterval=1, saveFig=False, fontSize=20):
     fig.canvas.set_window_title(fig_name)
 
     ax1 = fig.add_subplot(131)
-    ax1.plot(posVec[:, 0], label='camera x coordinate')
-    ax1.set_ylim(min(posVec[:, 0]) - plotInterval, max(posVec[:, 0]) + plotInterval)
+    ax1.plot(X, label='camera x coordinate')
+    ax1.set_ylim(min(X) - plotInterval, max(X) + plotInterval)
     ax1.set_xlabel('Time [?]', fontsize=fontSize)
     ax1.set_ylabel('X [m]', fontsize=fontSize)
     plt.grid()
 
     ax2 = fig.add_subplot(132)
-    ax2.plot(posVec[:, 1], label='camera y coordinate')
-    ax2.set_ylim(min(posVec[:, 1]) - plotInterval, max(posVec[:, 1]) + plotInterval)
+    ax2.plot(Y, label='camera y coordinate')
+    ax2.set_ylim(min(Y) - plotInterval, max(Y) + plotInterval)
     ax2.set_xlabel('Time [?]', fontsize=fontSize)
     ax2.set_ylabel('Y [m]', fontsize=fontSize)
     plt.grid()
 
     ax3 = fig.add_subplot(133)
-    ax3.plot(posVec[:, 2], label='camera z coordinate')
-    ax3.set_ylim(min(posVec[:, 2]) - plotInterval, max(posVec[:, 2]) + plotInterval)
+    ax3.plot(Z, label='camera z coordinate')
+    ax3.set_ylim(min(Z) - plotInterval, max(Z) + plotInterval)
     ax3.set_xlabel('Time [?]', fontsize=fontSize)
     ax3.set_ylabel('Z [m]', fontsize=fontSize)
     plt.grid()
