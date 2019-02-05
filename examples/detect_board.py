@@ -18,15 +18,19 @@ import cv2
 import cv2.aruco as aruco
 import numpy as np
 import pickle
- 
+
+import file_select_gui as gui
+
 cap = cv2.VideoCapture(0)
 
 font = cv2.FONT_HERSHEY_SIMPLEX #font for displaying text
 markerSize = 0.07  # Size of markers in physical world [m]
-cal = pickle.load(open( "camParams.p", "rb" ))
+cam_params_file = gui.get_file_path("Select camera parameters file").name
+cal = pickle.load(open( cam_params_file, "rb" ))
 
-cMat = cal[1]
-dist = cal[2]
+cMat = cal[0]
+# dist = cal[2]
+dist = cal[1][0]
 
 # 4x4 board
 dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
