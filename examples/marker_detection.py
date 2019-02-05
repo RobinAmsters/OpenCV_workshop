@@ -8,23 +8,25 @@ Created on Wed May  9 16:19:59 2018
 
 Example aruco marker detection postprocessing file
 
+If the argument 'select_files' is specified, a GUI will be used to select the camera parameters and video file
+
 """
 # Include parent directory in pythonpath
-import os, sys, inspect
+import os, inspect
 import csv
 
 import cv2
-import matplotlib
-matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 
+# Append files in parent folder for relative imports
+import sys
+sys.path.append('..')
 from file_select_gui import get_file_path
-from webcam import get_webcam_reference
+import webcam
 
-
-def track_marker():
+def track_marker(select_files=False):
     save_figs = False  # Save the resulting plots
 
     # Define marker parameters
@@ -36,26 +38,25 @@ def track_marker():
     parentdir = os.path.dirname(currentdir)
     sys.path.insert(0, parentdir)
 
-    #       Select files with GUI
-    cam_params_file = get_file_path("Select camera parameters file").name
-    video_file = get_file_path("Select video file").name
+    #       Select files with GUI or use example data
+    if select_files:
+        cam_params_file = get_file_path("Select camera parameters file").name
+        video_file = get_file_path("Select video file").name
+    else:
+        cam_params_file = str(sys.path[0]) + '/example_data/cam_params.pckl'
+        video_file = str(sys.path[0]) + '/example_data/robot_aruco.webm'
 
-    # cam_params_file = '/home/quinten/Documents/vakantiejob/camera/benchmarking/example_data/cam_params.pckl'
-    # video_file = '/home/quinten/Documents/vakantiejob/camera/benchmarking/example_data/robot_aruco.webm'
 
-    all_tvec, all_rvec = get_webcam_reference(video_file, cam_params_file, dictionary,
+    all_tvec, all_rvec = webcam.get_webcam_reference(video_file, cam_params_file, dictionary,
                                               marker_size, board, show_video=True,
                                               save_output=False, output_file_name='example.avi')
-
-    print(all_tvec.shape)
-
     (X, Y, Z) = project_in_main_plane(all_tvec)
 
-    fig = plt.figure(3)
-    fig.clf()
-    ax = fig.gca(projection='3d')
-    ax.axis('equal')
-    ax.scatter(X, Y)
+    # fig = plt.figure(3)
+    # fig.clf()
+    # ax = fig.gca(projection='3d')
+    # ax.axis('equal')
+    # ax.scatter(X, Y)
 
 
     visualize(all_tvec, saveFig=save_figs)
@@ -91,24 +92,24 @@ def write_to_csv(posVec, fileName, startTime, framerate):
 def visualize(posVec, plotInterval=1, saveFig=False, fontSize=20):
     #             PLOTTING
 
-    fig_name = 'Robot position'
+    fig_name = 'Marker position'
     fig1 = plt.figure(1)
     fig1.clf()
     fig1.canvas.set_window_title(fig_name)
     ax1 = fig1.gca(projection='3d')
     ax1.axis('equal')
-    ax1.scatter3D(posVec[:, 0], posVec[:, 1], posVec[:, 2], label='Camera measurements')
+    ax1.scatter3D(posVec[:, 0], posVec[:, 1], posVec[:, 2])
     ax1.set_xlim(min(posVec[:, 0]) - plotInterval, max(posVec[:, 0]) + plotInterval)
     ax1.set_ylim(min(posVec[:, 1]) - plotInterval, max(posVec[:, 1]) + plotInterval)
     ax1.set_zlim(min(posVec[:, 2]) - plotInterval, max(posVec[:, 2]) + plotInterval)
-    ax1.set_title('Robot position', fontsize=fontSize, y=1.05)
+    ax1.set_title('Marker position', fontsize=fontSize, y=1.05)
     plt.tick_params(axis='both', which='major', labelsize=fontSize)
 
     if saveFig:
         plt.savefig((fig_name + '.png'), dpi=300, bbox_inches='tight')
         plt.savefig((fig_name + '.eps'), format='eps', dpi=300.0, bbox_inches='tight')
 
-    fig_name = 'Individual coordinates'
+    fig_name = 'Marker coordinates'
     fig = plt.figure(2)
     fig.clf()
     fig.canvas.set_window_title(fig_name)
@@ -137,9 +138,14 @@ def visualize(posVec, plotInterval=1, saveFig=False, fontSize=20):
     if saveFig:
         plt.savefig((fig_name + '.png'), dpi=300, bbox_inches='tight')
         plt.savefig((fig_name + '.eps'), format='eps', dpi=300.0, bbox_inches='tight')
-    plt.draw()
+    # plt.draw()
 
 
 if __name__ == '__main__':
-    track_marker()
+
+    if 'select_files' in sys.argv:
+        select_files = True
+    else:
+        select_files = False
+    track_marker(select_files=select_files)
     plt.show()
