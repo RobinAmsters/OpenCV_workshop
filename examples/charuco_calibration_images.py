@@ -65,12 +65,13 @@ if __name__ == "__main__":
                 allCorners.append(res2[1])
                 allIds.append(res2[2])
     
-            cv2.aruco.drawDetectedMarkers(gray,res[0],res[1])
+            cv2.aruco.drawDetectedMarkers(frame,res[0],res[1])
     
-        cv2.imshow('frame',gray)
+        cv2.imshow('frame',frame)
+        cv2.waitKey(500)
         
-        if cv2.waitKey(500) & 0xFF == ord('q'):
-            break
+        # if cv2.waitKey(500) & 0xFF == ord('q'):
+        #     break
         
         decimator+=1
         
