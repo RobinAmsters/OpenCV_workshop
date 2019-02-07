@@ -14,14 +14,14 @@ import pickle
 from file_select_gui import get_directory_path
 
 # Save calibration data
-save_params = True
+save_params = False
 
 # checkerboard Dimensions
-cbrow = 6 # Checkerboard rows
-cbcol = 7  # Checkerboard columns
-square_size = 107.6 /1000 # Size of checkerboard square in millimeters, set to 1000 if square size is unknown
-# image_folder = get_directory_path('Select folder containing calibration images ')
-image_folder = '/home/quinten/Documents/vakantiejob/results/Video/images'
+cbrow = 8 # Checkerboard rows
+cbcol = 6  # Checkerboard columns
+square_size = 40.0 /1000.0  # Size of checkerboard square in millimeters, set to 1000 if square size is unknown
+image_folder = get_directory_path('Select folder containing calibration images ')
+
 # Termination criteria
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
@@ -44,9 +44,9 @@ for fname in images:
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     binary = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 131 ,10)
 
-    cv2.imshow('gray', gray)
-    cv2.imshow('image', img)
-    cv2.imshow('binary', binary)
+    # cv2.imshow('gray', gray)
+    # cv2.imshow('image', img)
+    # cv2.imshow('binary', binary)
 
     cv2.waitKey(0)
 
@@ -68,6 +68,12 @@ for fname in images:
 			
         # Make window and show image
         frame_name = 'detected chessboard'
+        cv2.namedWindow(frame_name, cv2.WINDOW_NORMAL)
+        cv2.resizeWindow(frame_name, 1920,1080)
+        cv2.imshow(frame_name, img)
+        cv2.waitKey(250)
+    else:
+        frame_name = 'chessboard not detected'
         cv2.namedWindow(frame_name, cv2.WINDOW_NORMAL)
         cv2.resizeWindow(frame_name, 1920,1080)
         cv2.imshow(frame_name, img)
