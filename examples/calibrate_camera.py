@@ -20,8 +20,9 @@ save_params = True
 cbrow = 6 # Checkerboard rows
 cbcol = 7  # Checkerboard columns
 square_size = 107.6 /1000 # Size of checkerboard square in millimeters, set to 1000 if square size is unknown
-# image_folder = get_directory_path('Select folder containing calibration images ')
-image_folder = '/home/quinten/Documents/vakantiejob/results/Video/images'
+# square_size = 40.0/1000
+image_folder = get_directory_path('Select folder contai ning calibration images ')
+# image_folder = '/home/quinten/Documents/vakantiejob/results/Video/images'
 # Termination criteria
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
